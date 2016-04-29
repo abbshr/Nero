@@ -1,0 +1,25 @@
+{
+  "name": "nero",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "bin/nero"
+  },
+  "author": "ran <abbshrsoufii@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "debug": "^2.2.0",
+    "istanbul": "^0.4.2",
+    "mocha": "^2.4.5",
+    "should": "^8.2.2"
+  },
+  "dependencies": {
+    "archangel-util": "^1.0.0",
+    "coffee-script": "^1.10.0",
+    "connect": "^3.4.1",
+    "js-yaml": "^3.5.3",
+    "winston": "^2.2.0"
+  }
+}

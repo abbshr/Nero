@@ -1,0 +1,5 @@
+#!/usr/bin/env coffee
+process.chdir "#{__dirname}/.."
+
+Master = require '..'
+Master::fork()

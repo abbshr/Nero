@@ -1,0 +1,13 @@
+cluster:
+  workers: 4
+
+gateway:
+  port: 6666
+
+agent:
+  push_val: 6000
+
+feed_stream:
+  sock: "../Leviathan/run/feed.sock"
+  
+log_path: './log/nero.log'

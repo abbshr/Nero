@@ -1,0 +1,8 @@
+prefix: "./lib/plugins"
+plugins:
+  elastic-quota: "elastic-quota"
+  rate-limit: "rate-limit"
+  ssl: "ssl"
+  signature: 'signature'
+  acl: 'acl'
+  auth: 'auth'
