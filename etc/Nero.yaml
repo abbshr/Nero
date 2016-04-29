@@ -11,3 +11,16 @@ feed_stream:
   sock: "../Leviathan/run/feed.sock"
   
 log_path: './log/nero.log'
+
+plugin:
+  load_prefix: './plugins'
+  request_phase:
+    - auth
+    - log
+    - ratelimit
+    - ssl
+  response_phase:
+    - auth
+    - log
+    - ratelimit
+    - ssl
