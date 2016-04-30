@@ -9,7 +9,7 @@ class FeedStreamClient extends EventEmitter
     @socket = null
     super()
 
-  listen: (callback = ->) ->
+  listen: (callback = ->) =>
     @ds = new cbor.Decoder()
     @socket = net.connect @sock
     @socket.on 'connect', callback
@@ -33,10 +33,10 @@ class FeedStreamClient extends EventEmitter
     @emit 'data', deltas
     
   onError: (err) =>
-    logger.error "[feed client]", err.message
+    @emit 'error', err
     
   onClose: (err) =>
-    logger.warn "[feed client]", "stream end by remote server"
+    @emit 'close', err
 
   close: (callback = ->) ->
     @ds?.end()

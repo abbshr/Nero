@@ -10,8 +10,18 @@ replica_plugins = {}
 logger.info "[agent]", "process start"
 feed_stream = new FeedStreamClient config.feed_stream.sock
 
-feed_stream.listen ->
-  logger.info "[agent]", "feed stream connected"
+onConnect = ->
+  logger.info "[agent]", "from feed client: feed stream connected"
+onClose = ->
+  logger.warn "[agent]", "from feed client: stream ended by remote feed server"
+  logger.info "[agent]", "from feed client: retrying to connect the feed stream"
+  setTimeout @listen, 5000, onConnect
+onError = (err) ->
+  logger.error "[agent]", "from feed client:", err.message
+
+feed_stream.listen onConnect
+.on 'close', onClose
+.on 'error', onError
 .on 'data', (deltas) ->
   # [[k,v,n],...]
   for [k, v, n] in deltas
