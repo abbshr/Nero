@@ -11,10 +11,8 @@ concatDir = (pluginName) ->
   dir = path.join cwd, load_prefix, pluginName
 
 class HotConf
-   
-  load: (pluginName) ->      
-    dir = concatDir pluginName
-    
+
+  exec: (pluginName, dir) ->
     try
       Plugin = require dir
     catch e
@@ -23,19 +21,25 @@ class HotConf
       """
     Plugin._dir = dir
     Plugin
-    
+
+  load: (pluginName, cached = yes) ->
+    Plugin = @exec pluginName, concatDir pluginName
+    delete require.cache[Plugin._dir] unless cached
+    Plugin
+
   unload: (pluginName) ->
     dir = concatDir pluginName
     delete require.cache[dir]
     dir
-  
+
   reload: (pluginName) ->
-    dir = HotConf::unload pluginName
-    Plugin = require dir
+    @exec pluginName, @unload pluginName
   
   createFn: (pluginName, settings) ->
-    Plugin = HotConf::load pluginName
+    Plugin = @load pluginName, no
     plugin = new Plugin settings
+    plugin.pluginName = pluginName
+    plugin
     
 module.exports = HotConf
   
