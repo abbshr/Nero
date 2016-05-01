@@ -2,7 +2,7 @@ cluster:
   workers: 4
 
 gateway:
-  port: 6666
+  port: 60000
 
 agent:
   push_val: 6000
@@ -15,12 +15,5 @@ log_path: './log/nero.log'
 plugin:
   load_prefix: './plugins'
   request_phase:
-    - auth
-    - log
-    - ratelimit
-    - ssl
-  response_phase:
-    - auth
-    - log
-    - ratelimit
-    - ssl
+    - randomhi
+  # response_phase:
