@@ -5,7 +5,7 @@ BasePlugin = require './base-plugin'
 logger = require('../util/logger')()
 
 class Core
-  constructor: ({request_phase, response_phase}) ->
+  constructor: ({request_phase = [], response_phase = []}) ->
     @app = connect()
     @service_settings = {}
     @request_phase_len = 0
@@ -48,7 +48,7 @@ class Core
 
     @app.use BasePlugin.createResponseFn()
 
-  addPlugin: (pluginName, phase, order) ->
+  enablePlugin: (pluginName, phase, order) ->
     try
       pluginFn = HotConf::createFn pluginName, @service_settings
     catch err
@@ -84,9 +84,9 @@ class Core
       for i in [order...stack.length]
         _plugin_name = stack[i + 1].handle.pluginName
         plugin_s[_plugin_name] = i + 1 if plugin_s[_plugin_name]?
-      logger.info "[gateway]", "add new plugin <#{pluginName}> in #{phase}"
+      logger.info "[gateway]", "enable plugin <#{pluginName}> in #{phase}"
   
-  delPlugin: (pluginName, phase) ->
+  disablePlugin: (pluginName, phase) ->
     stack = @app.stack
     plugin_s = @[phase]
     unless plugin_s?
@@ -95,15 +95,15 @@ class Core
 
     order = plugin_s[pluginName]
     if order?
-      delete plugin_s[pluginName]
-      delete stack[order]
-      @app.stack = util.orderList.deflate stack,
-        from: order
-        mutable: yes
-        movedCallback: ({handle: {pluginName}}, new_order) ->
-          plugin_s[pluginName] = new_order if plugin_s[pluginName]?
-    
-    logger.info "[gateway]", "plugin #{pluginName} remove from #{phase}"
+      stack[order]?.handle.enabled = no
+      # delete plugin_s[pluginName]
+      # delete stack[order]
+      # @app.stack = util.orderList.deflate stack,
+      #   from: order
+      #   mutable: yes
+      #   movedCallback: ({handle: {pluginName}}, new_order) ->
+      #     plugin_s[pluginName] = new_order if plugin_s[pluginName]?
+      logger.info "[gateway]", "disable plugin #{pluginName} in #{phase}"
 
   updateSettings: (serviceName, {upstreams, plugins}) ->
     service = @service_settings[serviceName] ?= upstreams: [], plugins: {}

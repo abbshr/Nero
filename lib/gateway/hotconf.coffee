@@ -1,31 +1,33 @@
 {plugin: {load_prefix}} = require '../../etc/Nero'
 plugin_lst = require '../../etc/plugins'
+Scaffold = require './scaffold'
 path = require 'path'
 cwd = process.cwd()
 
 concatDir = (pluginName) ->
-  unless pluginName of plugin_lst
+  dir_suffix = plugin_lst[pluginName]
+  unless dir_suffix?
     throw new Error """
       plugin <#{pluginName}> not found, make sure it has been installed correctly
     """
-  dir = path.join cwd, load_prefix, pluginName
+  dir = path.join cwd, load_prefix, dir_suffix
 
 class HotConf
 
   exec: (pluginName, dir) ->
     try
-      Plugin = require dir
+      plugin = require(dir)()
     catch e
       throw new Error """
         can not initialize the specified plugin: <#{pluginName}> => #{dir}
       """
-    Plugin._dir = dir
-    Plugin
+    plugin._dir = dir
+    plugin
 
   load: (pluginName, cached = yes) ->
-    Plugin = @exec pluginName, concatDir pluginName
-    delete require.cache[Plugin._dir] unless cached
-    Plugin
+    plugin = @exec pluginName, concatDir pluginName
+    delete require.cache[plugin._dir] unless cached
+    plugin
 
   unload: (pluginName) ->
     dir = concatDir pluginName
@@ -36,10 +38,9 @@ class HotConf
     @exec pluginName, @unload pluginName
   
   createFn: (pluginName, settings) ->
-    Plugin = @load pluginName, no
-    plugin = new Plugin settings
-    plugin.pluginName = pluginName
-    plugin
+    plugin = @load pluginName, no
+    scaffold = Scaffold plugin, settings
+    scaffold.fn
     
 module.exports = HotConf
   

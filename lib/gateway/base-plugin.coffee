@@ -1,15 +1,20 @@
 Resolve = require './resolve'
+url = require 'url'
+logger = require('../util/logger')()
 
 BasePlugin =
   requestFn: (service_settings) ->
     (req, res, next) ->
       # 解析serviceName
-      req.serviceName
+      {pathname} = url.parse req.url
+      serviceName = req.serviceName = pathname.split('/')[1]
+      req.cfg = {}
+      logger.debug "[base plugin - requestFn]", "got serviceName", serviceName
       if service_settings[serviceName]?.upstreams.length
-        setImmediate next
+        next()
       else
-        res.statusCode = 500
-        res.end JSON.stringify msg: 'upstreams not found'
+        res.statusCode = 200
+        res.end JSON.stringify msg: 'upstreams not found', time: Date.now()
 
   forwardFn: (service_settings) ->
     (req, res, next) ->
@@ -21,7 +26,7 @@ BasePlugin =
           err.message
         else
           upstream_res
-        setImmediate next, err
+        next()
 
   responseFn: ->
     (req, res) ->
@@ -29,7 +34,7 @@ BasePlugin =
         res.write JSON.stringify {upstream_res}
         res.end()
       else
-        res.statusCode = 100
+        res.statusCode = 200
         res.end JSON.stringify msg: 'empty body'
 
 for fnName, fn of BasePlugin
