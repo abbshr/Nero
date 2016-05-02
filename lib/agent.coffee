@@ -56,3 +56,5 @@ process.on "SIGTERM", ->
     logger.warn "[agent]", "disconnected feed stream"
     logger.warn "[agent]", "process exit"
     process.exit 0
+    
+notifyMaster()
