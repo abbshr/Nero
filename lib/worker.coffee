@@ -25,4 +25,7 @@ process.on 'message', ipcHandle
 process.on 'SIGINT', ->
 process.on "SIGTERM", ->
   logger.warn "[worker]", "got signal: SIGTERM"
-  process.exit 0
+  gateway.close ->
+    logger.warn "[worker]", 'gateway server closed'
+    process.removeListener 'message', ipcHandle
+    process.exit 0
