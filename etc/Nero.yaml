@@ -2,6 +2,10 @@ cluster:
   workers: 4
 
 gateway:
+  enable_ssl: false
+  key_path: ""
+  cert_path: ""
+  sec_port: 60001
   port: 60000
 
 agent:

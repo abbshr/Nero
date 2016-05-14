@@ -4,15 +4,27 @@ cluster = require 'cluster'
 if cluster.isMaster
   throw new Error "Can not run in Master mode"
 
+fs = require 'fs'
 http = require 'http'
+https = require 'https'
 Core = require './gateway/core'
 logger = require('./util/logger')()
 config = require '../etc/Nero'
 
 core = new Core config.plugin
+
+# http server
 gateway = http.createServer core.router()
 gateway.listen config.gateway.port, ->
-  logger.info "[worker]", "Nero worker start [#{process.pid}], listen to", config.gateway.port
+  logger.info "[worker]", "Nero server start, listen to", config.gateway.port
+
+if config.enable_ssl
+  sec_gateway = https.createServer
+    key: fs.readFileSync config.key_path
+    cert: fs.readFileSync config.cert_path
+  , core.router()
+  sec_gateway.listen config.gateway.sec_port, ->
+    logger.info "[worker]", "Nero SSL enabled, listen to", config.gateway.sec_port
 
 ipcHandle = (updates) ->
   logger.verbose "[worker]", """
@@ -27,5 +39,7 @@ process.on "SIGTERM", ->
   logger.warn "[worker]", "got signal: SIGTERM"
   gateway.close ->
     logger.warn "[worker]", 'gateway server closed'
-    process.removeListener 'message', ipcHandle
-    process.exit 0
+    sec_gateway?.close ->
+      logger.warn "[worker]", 'SSL gateway server closed'
+      process.removeListener 'message', ipcHandle
+      process.exit 0
