@@ -1,7 +1,7 @@
 class Scaffold
 
   constructor: (plugin, @settings) ->
-    {@pluginName} = plugin
+    {@pluginName, @base} = plugin
     @handle = plugin.handle.bind plugin
     plugin.settings = @settings
     @enabled = on
@@ -14,6 +14,11 @@ class Scaffold
     # 每个插件函数内部可以访问api的全局设置`@settings`来获取当前插件的配置
     {"#{req.serviceName}": {plugins}} = @settings
     
+    # 对于基础插件都要执行
+    if @base
+      return @handle req, res, next
+    
+    # 否则按API配置执行插件
     unless plugins?[@pluginName]
       return next()
     
