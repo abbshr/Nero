@@ -24,16 +24,18 @@ class Master
     master.initSignal()
     master.initCluster()
     master.spawnWorkers()
-    master.handleIPC()
     master.spawnAgent()
+    master.handleIPC()
     
   handleIPC: ->
-    process.on 'message', ({cmd, data}) ->
+    @agent.on 'message', (msg) ->
+      {cmd} = msg
+      logger.debug msg
       if cmd is 'update'
         logger.verbose "[master]", """
           receive updates from agent, dispatching to workers...
         """
-        worker.send data for _, worker of cluster.workers
+        worker.send msg for _, worker of cluster.workers
 
   initSignal: ->
     for sig in @SIG
@@ -110,7 +112,7 @@ class Master
     else
       logger.info "[master]", "agent respawning..."
       @spawnAgent()
-  
+
   onAgentError: (err) => logger.error err
   
   onAgentDisconnect: => logger.warn '[master]', 'agent disconnect'

@@ -26,20 +26,30 @@ if config.enable_ssl
   sec_gateway.listen config.gateway.sec_port, ->
     logger.info "[worker]", "Nero SSL enabled, listen to", config.gateway.sec_port
 
-ipcHandle = (updates) ->
-  logger.verbose "[worker]", """
-    worker #{process.pid} receive the updates from the master process, applying to route table...
-  """
-  for serviceName, settings of updates
-    core.updateRoute serviceName, settings
+ipcHandle = ({cmd, data: updates}) ->
+  if cmd is 'update'
+    logger.verbose "[worker]", """
+      worker #{process.pid} receive the updates from the master process, applying to route table...
+    """
+    for serviceName, settings of updates
+      core.updateRoute serviceName, settings
 
 process.on 'message', ipcHandle
 process.on 'SIGINT', ->
 process.on "SIGTERM", ->
   logger.warn "[worker]", "got signal: SIGTERM"
+  
   gateway.close ->
     logger.warn "[worker]", 'gateway server closed'
-    sec_gateway?.close ->
-      logger.warn "[worker]", 'SSL gateway server closed'
+    global.gateway_closed = yes
+    unless sec_gateway? and not global.sec_gateway_closed
       process.removeListener 'message', ipcHandle
       process.exit 0
+  
+  sec_gateway?.close ->
+    global.sec_gateway_closed = yes
+    logger.warn "[worker]", 'SSL gateway server closed'
+    unless global.gateway_closed
+      process.removeListener 'message', ipcHandle
+      process.exit 0
+      

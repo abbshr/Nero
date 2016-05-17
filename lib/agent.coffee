@@ -7,6 +7,8 @@ config = require '../etc/Nero'
 replica_services = {}
 replica_plugins = {}
 
+closing = no
+
 logger.info "[agent]", "process start"
 feed_stream = new FeedStreamClient config.feed_stream.sock
 
@@ -41,7 +43,7 @@ feed_stream.listen onConnect
 
 notifyMaster = ->
   setTimeout ->
-    updates = cmd: 'updates', data: replica_services
+    updates = cmd: 'update', data: replica_services
     process.send updates, (err) ->
       logger.verbose "[agent]", "send updates to master process"
       notifyMaster()

@@ -5,7 +5,7 @@ gateway:
   enable_ssl: false
   key_path: ""
   cert_path: ""
-  sec_port: 60001
+  sec_port: 60443
   port: 60000
 
 agent:
