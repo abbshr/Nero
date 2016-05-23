@@ -14,6 +14,8 @@ class Scaffold
     # 每个插件函数内部可以访问api的全局设置`@settings`来获取当前插件的配置
     {"#{req.serviceName}": {plugins}} = @settings
     
+    req.cfg = plugins[@pluginName]
+    
     # 对于基础插件都要执行
     if @base
       return @handle req, res, next
@@ -21,8 +23,7 @@ class Scaffold
     # 否则按API配置执行插件
     unless plugins?[@pluginName]
       return next()
-    
-    req.cfg[@pluginName] = plugins[@pluginName]
+
     # 执行插件逻辑
     @handle req, res, next
 
