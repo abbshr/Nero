@@ -32,7 +32,7 @@ ipcHandle = ({cmd, data: updates}) ->
       worker #{process.pid} receive the updates from the master process, applying to route table...
     """
     for serviceName, settings of updates
-      core.updateRoute serviceName, settings
+      core.updateSettings serviceName, settings
 
 process.on 'message', ipcHandle
 process.on 'SIGINT', ->

@@ -108,7 +108,7 @@ class Core
   updateSettings: (serviceName, {upstreams, plugins}) ->
     service = @service_settings[serviceName] ?= upstreams: [], plugins: {}
     service.upstreams = upstreams if upstreams
-    service.plugins = plugins if plugins?
+    Object.assign service.plugins, plugins if plugins?
     logger.info "[gateway]", "routes table settings update successfully"
       
 module.exports = Core

@@ -4,8 +4,8 @@ logger = require('./util/logger')()
 FeedStreamClient = require './feed-stream-c'
 config = require '../etc/Nero'
 
-replica_services = {}
-replica_plugins = {}
+global.replica_services = {}
+global.replica_plugins = {}
 
 closing = no
 
@@ -43,12 +43,14 @@ feed_stream.listen onConnect
 
 notifyMaster = ->
   setTimeout ->
-    updates = cmd: 'update', data: replica_services
+    logger.debug global.replica_services
+    updates = cmd: 'update', data: global.replica_services
     process.send updates, (err) ->
       logger.verbose "[agent]", "send updates to master process"
       notifyMaster()
     updates = null
     global.replica_services = {}
+    global.replica_plugins = {}
   , config.agent.push_val
 
 process.on 'SIGINT', ->
