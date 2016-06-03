@@ -11,7 +11,6 @@ class Resolve
       path: req.etcs
       method: req.method
       header: req.headers
-
     client = http.request options, (res) ->
       res.on 'data', (chunk) ->
         raw.push chunk

@@ -19,6 +19,12 @@ log_path: './log/nero.log'
 plugin:
   load_prefix: './plugins'
   request_phase:
+    - ip-restriction
     - rate-limit
     - strict-limit
-  # response_phase:
+    - request-head-transform
+    - hmac-signature
+    - cors
+    - size-limit
+  response_phase:
+    - response-head-transform
