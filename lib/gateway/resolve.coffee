@@ -2,6 +2,10 @@ http = require 'http'
 
 class Resolve
 
+  defaultHeader: ->
+    'X-Powered-By': 'Archangel'
+    'Content-Type': 'application/json'
+
   forward: (url, req, callback) ->
     raw = []
     [addr, port = 80] = url.split ':'
@@ -10,7 +14,8 @@ class Resolve
       port: port
       path: req.etcs
       method: req.method
-      header: req.headers
+      header: Object.assign @defaultHeader(), req.specHeader
+
     client = http.request options, (res) ->
       res.on 'data', (chunk) ->
         raw.push chunk

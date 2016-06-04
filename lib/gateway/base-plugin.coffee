@@ -1,8 +1,18 @@
 Resolve = require './resolve'
 url = require 'url'
+{PassThrough} = require 'stream'
 logger = require('../util/logger')()
 
 BasePlugin =
+  ###
+    系统挂载的属性:
+      req.specHeader - 在`request-head-transform`插件中生成的的自定义请求头
+      req.etcs - upstream的path (即protocol://host:port之后的部分)
+      req.cfg - 当前执行的插件的配置信息
+      req.stageDataStream - 客户端请求携带的数据流
+      req.serviceName - 服务名称
+  ###
+
   requestFn: (service_settings) ->
     (req, res, next) ->
       # 解析serviceName
@@ -16,8 +26,11 @@ BasePlugin =
         req.etcs = pathname[spliter...]
       req.cfg = {}
       logger.debug "[base plugin - requestFn]", "got serviceName", serviceName
-      console.log service_settings[serviceName]
+      logger.debug "service config:", service_settings[serviceName]
+      # req.stageDataStream = new PassThrough()
+
       if service_settings[serviceName]?.upstreams.length
+        # req.pipe req.stageDataStream
         next()
       else
         res.statusCode = 200
