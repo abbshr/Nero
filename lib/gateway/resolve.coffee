@@ -27,6 +27,9 @@ class Resolve
       raw = null
       callback err, raw
 
-    req.pipe client
+    if req.hasbody
+      req.pipe client
+    else
+      client.end()
 
 module.exports = Resolve

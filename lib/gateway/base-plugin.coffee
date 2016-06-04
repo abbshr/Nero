@@ -1,7 +1,16 @@
 Resolve = require './resolve'
 url = require 'url'
-{PassThrough} = require 'stream'
 logger = require('../util/logger')()
+
+#
+# Check if a request has a request body.
+# A request with a body __must__ either have `transfer-encoding`
+# or `content-length` headers set.
+# http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.3
+# 
+
+hasbody = (req) ->
+  req.headers['transfer-encoding']? or not isNaN req.headers['content-length']
 
 BasePlugin =
   ###
@@ -12,7 +21,6 @@ BasePlugin =
       req.stageDataStream - 客户端请求携带的数据流
       req.serviceName - 服务名称
   ###
-
   requestFn: (service_settings) ->
     (req, res, next) ->
       # 解析serviceName
@@ -27,10 +35,9 @@ BasePlugin =
       req.cfg = {}
       logger.debug "[base plugin - requestFn]", "got serviceName", serviceName
       logger.debug "service config:", service_settings[serviceName]
-      # req.stageDataStream = new PassThrough()
 
       if service_settings[serviceName]?.upstreams.length
-        # req.pipe req.stageDataStream
+        req.hasbody = hasbody req
         next()
       else
         res.statusCode = 200

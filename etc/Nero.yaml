@@ -25,6 +25,6 @@ plugin:
     - request-head-transform
     - hmac-signature
     - cors
-    - size-limit
+    - request-body-size-limit
   response_phase:
     - response-head-transform
