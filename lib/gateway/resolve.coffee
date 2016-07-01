@@ -14,7 +14,7 @@ class Resolve
       port: port
       path: req.etcs
       method: req.method
-      header: Object.assign @defaultHeader(), req.specHeader
+      headers: Object.assign @defaultHeader(), req.specHeader
 
     client = http.request options, (res) ->
       res.on 'data', (chunk) ->
